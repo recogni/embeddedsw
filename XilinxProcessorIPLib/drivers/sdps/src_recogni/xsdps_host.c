@@ -199,12 +199,7 @@ void XSdPs_SetExecTuning(XSdPs *InstancePtr)
 s32 XSdPs_SdModeInit(XSdPs *InstancePtr)
 {
 	s32 Status;
-#ifdef __ICCARM__
-#pragma data_alignment = 32
-	static u8 SCR[8] = { 0U };
-#else
 	static u8 SCR[8] __attribute__ ((aligned(32))) = { 0U };
-#endif
 	u8 ReadBuff[64] = { 0U };
 
 	Status = XSdPs_Get_BusWidth(InstancePtr, SCR);
@@ -301,12 +296,7 @@ RETURN_PATH:
 s32 XSdPs_MmcModeInit(XSdPs *InstancePtr)
 {
 	s32 Status;
-#ifdef __ICCARM__
-#pragma data_alignment = 32
-	static u8 ExtCsd[512];
-#else
 	static u8 ExtCsd[512] __attribute__ ((aligned(32)));
-#endif
 
 	InstancePtr->BusWidth = XSDPS_4_BIT_WIDTH;
 	Status = XSdPs_Change_BusWidth(InstancePtr);
@@ -370,12 +360,7 @@ s32 XSdPs_EmmcModeInit(XSdPs *InstancePtr)
 {
 	s32 Status;
 
-#ifdef __ICCARM__
-#pragma data_alignment = 32
-	static u8 ExtCsd[512];
-#else
 	static u8 ExtCsd[512] __attribute__ ((aligned(32)));
-#endif
 
 	if ((InstancePtr->HC_Version == XSDPS_HC_SPEC_V3) &&
 			(InstancePtr->Config.BusWidth == XSDPS_WIDTH_8)) {
@@ -668,7 +653,6 @@ s32 XSdPs_Execute_Tuning(XSdPs *InstancePtr)
 {
 	s32 Status;
 
-#ifndef versal
 	/* Issue DLL Reset to load new SDHC tuned tap values */
 	Status = XSdPs_DllReset(InstancePtr);
 	if (Status != XST_SUCCESS) {
@@ -676,7 +660,6 @@ s32 XSdPs_Execute_Tuning(XSdPs *InstancePtr)
 		goto RETURN_PATH;
 	}
 
-#endif
 
 	/* Perform the auto tuning */
 	Status = XSdPs_AutoTuning(InstancePtr);
@@ -685,7 +668,6 @@ s32 XSdPs_Execute_Tuning(XSdPs *InstancePtr)
 		goto RETURN_PATH;
 	}
 
-#ifndef versal
 	/* Issue DLL Reset to load new SDHC tuned tap values */
 	Status = XSdPs_DllReset(InstancePtr);
 	if (Status != XST_SUCCESS) {
@@ -693,7 +675,6 @@ s32 XSdPs_Execute_Tuning(XSdPs *InstancePtr)
 		goto RETURN_PATH;
 	}
 
-#endif
 
 	Status = XST_SUCCESS;
 
@@ -925,12 +906,7 @@ void XSdPs_SetupWriteDma(XSdPs *InstancePtr, u16 BlkCnt, u16 BlkSize, const u8 *
 ******************************************************************************/
 void XSdPs_Setup32ADMA2DescTbl(XSdPs *InstancePtr, u32 BlkCnt, const u8 *Buff)
 {
-#ifdef __ICCARM__
-#pragma data_alignment = 32
-	static XSdPs_Adma2Descriptor32 Adma2_DescrTbl[32];
-#else
 	static XSdPs_Adma2Descriptor32 Adma2_DescrTbl[32] __attribute__ ((aligned(32)));
-#endif
 	u32 TotalDescLines;
 	u64 DescNum;
 	u32 BlkSize;
@@ -993,12 +969,7 @@ void XSdPs_Setup32ADMA2DescTbl(XSdPs *InstancePtr, u32 BlkCnt, const u8 *Buff)
 ******************************************************************************/
 void XSdPs_Setup64ADMA2DescTbl(XSdPs *InstancePtr, u32 BlkCnt, const u8 *Buff)
 {
-#ifdef __ICCARM__
-#pragma data_alignment = 32
-	static XSdPs_Adma2Descriptor64 Adma2_DescrTbl[32];
-#else
 	static XSdPs_Adma2Descriptor64 Adma2_DescrTbl[32] __attribute__ ((aligned(32)));
-#endif
 	u32 TotalDescLines;
 	u64 DescNum;
 	u32 BlkSize;
@@ -1110,42 +1081,6 @@ void XSdPs_DllRstCtrl(XSdPs *InstancePtr, u8 EnRst)
 	u32 DllCtrl;
 
 	DeviceId = InstancePtr->Config.DeviceId;
-#ifdef versal
-#ifdef XPAR_PSV_PMC_SD_0_DEVICE_ID
-	if (DeviceId == 0U) {
-#if EL1_NONSECURE && defined (__aarch64__)
-		(void)DllCtrl;
-
-		XSdps_Smc(InstancePtr, SD0_DLL_CTRL, SD_DLL_RST, (EnRst == 1U) ? SD0_DLL_RST : 0U);
-#else /* EL1_NONSECURE && defined (__aarch64__) */
-		DllCtrl = XSdPs_ReadReg(InstancePtr->SlcrBaseAddr, SD0_DLL_CTRL);
-		if (EnRst == 1U) {
-			DllCtrl |= SD_DLL_RST;
-		} else {
-			DllCtrl &= ~SD_DLL_RST;
-		}
-		XSdPs_WriteReg(InstancePtr->SlcrBaseAddr, SD0_DLL_CTRL, DllCtrl);
-#endif /* EL1_NONSECURE && defined (__aarch64__) */
-	} else {
-#endif /* XPAR_PSV_PMC_SD_0_DEVICE_ID */
-		(void) DeviceId;
-#if EL1_NONSECURE && defined (__aarch64__)
-		(void)DllCtrl;
-
-		XSdps_Smc(InstancePtr, SD1_DLL_CTRL, SD_DLL_RST, (EnRst == 1U) ? SD_DLL_RST : 0U);
-#else
-		DllCtrl = XSdPs_ReadReg(InstancePtr->SlcrBaseAddr, SD1_DLL_CTRL);
-		if (EnRst == 1U) {
-			DllCtrl |= SD_DLL_RST;
-		} else {
-			DllCtrl &= ~SD_DLL_RST;
-		}
-		XSdPs_WriteReg(InstancePtr->SlcrBaseAddr, SD1_DLL_CTRL, DllCtrl);
-#endif
-#ifdef XPAR_PSV_PMC_SD_0_DEVICE_ID
-	}
-#endif /* XPAR_PSV_PMC_SD_0_DEVICE_ID */
-#else /* versal */
 
 #ifdef XPAR_PSU_SD_0_DEVICE_ID
 	if (DeviceId == 0U) {
@@ -1181,7 +1116,6 @@ void XSdPs_DllRstCtrl(XSdPs *InstancePtr, u8 EnRst)
 #ifdef XPAR_PSU_SD_0_DEVICE_ID
 	}
 #endif
-#endif
 }
 
 /*****************************************************************************/
@@ -1210,27 +1144,6 @@ void XSdPs_ConfigTapDelay(XSdPs *InstancePtr)
 	ITapDelay = InstancePtr->ITapDelay;
 	OTapDelay = InstancePtr->OTapDelay;
 
-#ifdef versal
-	(void) DeviceId;
-	if (ITapDelay) {
-		TapDelay = SD_ITAPCHGWIN;
-		XSdPs_WriteReg(InstancePtr->Config.BaseAddress, SD_ITAPDLY, TapDelay);
-		/* Program the ITAPDLY */
-		TapDelay |= SD_ITAPDLYENA;
-		XSdPs_WriteReg(InstancePtr->Config.BaseAddress, SD_ITAPDLY, TapDelay);
-		TapDelay |= ITapDelay;
-		XSdPs_WriteReg(InstancePtr->Config.BaseAddress, SD_ITAPDLY, TapDelay);
-		TapDelay &= ~SD_ITAPCHGWIN;
-		XSdPs_WriteReg(InstancePtr->Config.BaseAddress, SD_ITAPDLY, TapDelay);
-	}
-	if (OTapDelay) {
-		/* Program the OTAPDLY */
-		TapDelay = SD_OTAPDLYENA;
-		XSdPs_WriteReg(InstancePtr->Config.BaseAddress, SD_OTAPDLY, TapDelay);
-		TapDelay |= OTapDelay;
-		XSdPs_WriteReg(InstancePtr->Config.BaseAddress, SD_OTAPDLY, TapDelay);
-	}
-#else
 #ifdef XPAR_PSU_SD_0_DEVICE_ID
 	if (DeviceId == 0U) {
 #if EL1_NONSECURE && defined (__aarch64__)
@@ -1305,7 +1218,6 @@ void XSdPs_ConfigTapDelay(XSdPs *InstancePtr)
 #ifdef XPAR_PSU_SD_0_DEVICE_ID
 	}
 #endif
-#endif /* versal */
 }
 
 /*****************************************************************************/

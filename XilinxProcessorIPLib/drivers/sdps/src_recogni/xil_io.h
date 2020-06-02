@@ -41,11 +41,7 @@ extern "C" {
 #include "xil_printf.h"
 #include "xstatus.h"
 
-#if defined (__MICROBLAZE__)
-#include "mb_interface.h"
-#else
 #include "xpseudo_asm.h"
-#endif
 
 /************************** Function Prototypes ******************************/
 u16 Xil_EndianSwap16(u16 Data);
@@ -55,28 +51,11 @@ extern u32 XStl_RegUpdate(u32 RegAddr, u32 RegVal);
 #endif
 
 /***************** Macros (Inline Functions) Definitions *********************/
-#if defined __GNUC__
-#if defined (__MICROBLAZE__)
-#  define INST_SYNC		mbar(0)
-#  define DATA_SYNC		mbar(1)
-# else
 #  define SYNCHRONIZE_IO	dmb()
 #  define INST_SYNC		isb()
 #  define DATA_SYNC		dsb()
-# endif
-#else
-# define SYNCHRONIZE_IO
-# define INST_SYNC
-# define DATA_SYNC
-# define INST_SYNC
-# define DATA_SYNC
-#endif
 
-#if defined (__GNUC__) || defined (__ICCARM__) || defined (__MICROBLAZE__)
 #define INLINE inline
-#else
-#define INLINE __inline
-#endif
 
 /*****************************************************************************/
 /**
@@ -258,8 +237,6 @@ static INLINE u32 Xil_SecureOut32(UINTPTR Addr, u32 Value)
 	return Status;
 }
 
-#if defined (__MICROBLAZE__)
-#ifdef __LITTLE_ENDIAN__
 # define Xil_In16LE	Xil_In16
 # define Xil_In32LE	Xil_In32
 # define Xil_Out16LE	Xil_Out16
@@ -268,78 +245,26 @@ static INLINE u32 Xil_SecureOut32(UINTPTR Addr, u32 Value)
 # define Xil_Htonl	Xil_EndianSwap32
 # define Xil_Ntohs	Xil_EndianSwap16
 # define Xil_Ntohl	Xil_EndianSwap32
-# else
-# define Xil_In16BE	Xil_In16
-# define Xil_In32BE	Xil_In32
-# define Xil_Out16BE	Xil_Out16
-# define Xil_Out32BE	Xil_Out32
-# define Xil_Htons(Data) (Data)
-# define Xil_Htonl(Data) (Data)
-# define Xil_Ntohs(Data) (Data)
-# define Xil_Ntohl(Data) (Data)
-#endif
-#else
-# define Xil_In16LE	Xil_In16
-# define Xil_In32LE	Xil_In32
-# define Xil_Out16LE	Xil_Out16
-# define Xil_Out32LE	Xil_Out32
-# define Xil_Htons	Xil_EndianSwap16
-# define Xil_Htonl	Xil_EndianSwap32
-# define Xil_Ntohs	Xil_EndianSwap16
-# define Xil_Ntohl	Xil_EndianSwap32
-#endif
 
-#if defined (__MICROBLAZE__)
-#ifdef __LITTLE_ENDIAN__
 static INLINE u16 Xil_In16BE(UINTPTR Addr)
-#else
-static INLINE u16 Xil_In16LE(UINTPTR Addr)
-#endif
-#else
-static INLINE u16 Xil_In16BE(UINTPTR Addr)
-#endif
 {
 	u16 value = Xil_In16(Addr);
 	return Xil_EndianSwap16(value);
 }
 
-#if defined (__MICROBLAZE__)
-#ifdef __LITTLE_ENDIAN__
 static INLINE u32 Xil_In32BE(UINTPTR Addr)
-#else
-static INLINE u32 Xil_In32LE(UINTPTR Addr)
-#endif
-#else
-static INLINE u32 Xil_In32BE(UINTPTR Addr)
-#endif
 {
 	u32 value = Xil_In32(Addr);
 	return Xil_EndianSwap32(value);
 }
 
-#if defined (__MICROBLAZE__)
-#ifdef __LITTLE_ENDIAN__
 static INLINE void Xil_Out16BE(UINTPTR Addr, u16 Value)
-#else
-static INLINE void Xil_Out16LE(UINTPTR Addr, u16 Value)
-#endif
-#else
-static INLINE void Xil_Out16BE(UINTPTR Addr, u16 Value)
-#endif
 {
 	Value = Xil_EndianSwap16(Value);
 	Xil_Out16(Addr, Value);
 }
 
-#if defined (__MICROBLAZE__)
-#ifdef __LITTLE_ENDIAN__
 static INLINE void Xil_Out32BE(UINTPTR Addr, u32 Value)
-#else
-static INLINE void Xil_Out32LE(UINTPTR Addr, u32 Value)
-#endif
-#else
-static INLINE void Xil_Out32BE(UINTPTR Addr, u32 Value)
-#endif
 {
 	Value = Xil_EndianSwap32(Value);
 	Xil_Out32(Addr, Value);

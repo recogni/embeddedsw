@@ -1024,29 +1024,6 @@ extern "C" {
 #define XSDPS_WIDTH_4		4U
 
 
-#ifdef versal
-#define SD_ITAPDLY_SEL_MASK			0x000000FFU
-#define SD_OTAPDLY_SEL_MASK			0x0000003FU
-#define SD_ITAPDLY					0x0000F0F8U
-#define SD_OTAPDLY					0x0000F0FCU
-#define SD0_DLL_CTRL 				0x00000448U
-#define SD1_DLL_CTRL 				0x000004C8U
-#define SD_DLL_RST					0x00000004U
-#define SD_ITAPCHGWIN				0x00000200U
-#define SD_ITAPDLYENA				0x00000100U
-#define SD_OTAPDLYENA				0x00000040U
-#define SD_OTAPDLYSEL_HS200_B0		0x00000002U
-#define SD_OTAPDLYSEL_HS200_B2		0x00000002U
-#define SD_ITAPDLYSEL_SD50			0x0000000EU
-#define SD_OTAPDLYSEL_SD50			0x00000003U
-#define SD_ITAPDLYSEL_SD_DDR50		0x00000036U
-#define SD_ITAPDLYSEL_EMMC_DDR50	0x0000001EU
-#define SD_OTAPDLYSEL_SD_DDR50		0x00000003U
-#define SD_OTAPDLYSEL_EMMC_DDR50	0x00000005U
-#define SD_ITAPDLYSEL_HSD			0x0000002CU
-#define SD_OTAPDLYSEL_SD_HSD		0x00000004U
-#define SD_OTAPDLYSEL_EMMC_HSD		0x00000005U
-#else
 #define SD0_ITAPDLY_SEL_MASK		0x000000FFU
 #define SD0_OTAPDLY_SEL_MASK		0x0000003FU
 #define SD1_ITAPDLY_SEL_MASK		0x00FF0000U
@@ -1073,11 +1050,7 @@ extern "C" {
 #define SD_ITAPDLYSEL_HSD			0x00000015U
 #define SD_OTAPDLYSEL_SD_HSD		0x00000005U
 #define SD_OTAPDLYSEL_EMMC_HSD		0x00000006U
-#endif
 
-#ifdef __MICROBLAZE__
-#define XPS_SYS_CTRL_BASEADDR	0xFF180000U
-#endif
 
 /**************************** Type Definitions *******************************/
 
@@ -1183,15 +1156,7 @@ extern "C" {
 ******************************************************************************/
 static INLINE u16 XSdPs_ReadReg16(u32 BaseAddress, u8 RegOffset)
 {
-#if defined (__MICROBLAZE__)
-	u32 Reg;
-	BaseAddress += RegOffset & 0xFC;
-	Reg = XSdPs_In32(BaseAddress);
-	Reg >>= ((RegOffset & 0x3)*8);
-	return (u16)Reg;
-#else
 	return XSdPs_In16((BaseAddress) + (RegOffset));
-#endif
 }
 
 /***************************************************************************/
@@ -1213,16 +1178,7 @@ static INLINE u16 XSdPs_ReadReg16(u32 BaseAddress, u8 RegOffset)
 
 static INLINE void XSdPs_WriteReg16(u32 BaseAddress, u8 RegOffset, u16 RegisterValue)
 {
-#if defined (__MICROBLAZE__)
-	u32 Reg;
-	BaseAddress += RegOffset & 0xFC;
-	Reg = XSdPs_In32(BaseAddress);
-	Reg &= ~(0xFFFF<<((RegOffset & 0x3)*8));
-	Reg |= RegisterValue <<((RegOffset & 0x3)*8);
-	XSdPs_Out32(BaseAddress, Reg);
-#else
 	XSdPs_Out16((BaseAddress) + (RegOffset), (RegisterValue));
-#endif
 }
 
 /****************************************************************************/
@@ -1241,15 +1197,7 @@ static INLINE void XSdPs_WriteReg16(u32 BaseAddress, u8 RegOffset, u16 RegisterV
 ******************************************************************************/
 static INLINE u8 XSdPs_ReadReg8(u32 BaseAddress, u8 RegOffset)
 {
-#if defined (__MICROBLAZE__)
-	u32 Reg;
-	BaseAddress += RegOffset & 0xFC;
-	Reg = XSdPs_In32(BaseAddress);
-	Reg >>= ((RegOffset & 0x3)*8);
-	return (u8)Reg;
-#else
 	return XSdPs_In8((BaseAddress) + (RegOffset));
-#endif
 }
 /***************************************************************************/
 /**
@@ -1269,16 +1217,7 @@ static INLINE u8 XSdPs_ReadReg8(u32 BaseAddress, u8 RegOffset)
 ******************************************************************************/
 static INLINE void XSdPs_WriteReg8(u32 BaseAddress, u8 RegOffset, u8 RegisterValue)
 {
-#if defined (__MICROBLAZE__)
-	u32 Reg;
-	BaseAddress += RegOffset & 0xFC;
-	Reg = XSdPs_In32(BaseAddress);
-	Reg &= ~(0xFF<<((RegOffset & 0x3)*8));
-	Reg |= RegisterValue <<((RegOffset & 0x3)*8);
-	XSdPs_Out32(BaseAddress, Reg);
-#else
 	XSdPs_Out8((BaseAddress) + (RegOffset), (RegisterValue));
-#endif
 }
 /***************************************************************************/
 /**

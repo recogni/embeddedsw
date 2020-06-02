@@ -43,15 +43,8 @@ static int SdpsRawTest(void);
 
 /************************** Variable Definitions *****************************/
 
-#ifdef __ICCARM__
-#pragma data_alignment = 32
-u8 DestinationAddress[10*1024];
-#pragma data_alignment = 32
-u8 SourceAddress[10*1024];
-#else
 u8 DestinationAddress[10*1024] __attribute__ ((aligned(32)));
 u8 SourceAddress[10*1024] __attribute__ ((aligned(32)));
-#endif
 
 #define TEST 7
 /* Number of SD blocks to test */

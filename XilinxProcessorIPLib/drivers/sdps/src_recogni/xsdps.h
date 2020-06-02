@@ -218,24 +218,14 @@ typedef struct {
 	u16 Attribute;		/**< Attributes of descriptor */
 	u16 Length;		/**< Length of current dma transfer */
 	u32 Address;		/**< Address of current dma transfer */
-#ifdef __ICCARM__
-#pragma data_alignment = 32
-} XSdPs_Adma2Descriptor32;
-#else
 }  __attribute__((__packed__))XSdPs_Adma2Descriptor32;
-#endif
 
 /* ADMA2 64-Bit descriptor table */
 typedef struct {
 	u16 Attribute;		/**< Attributes of descriptor */
 	u16 Length;		/**< Length of current dma transfer */
 	u64 Address;		/**< Address of current dma transfer */
-#ifdef __ICCARM__
-#pragma data_alignment = 32
-} XSdPs_Adma2Descriptor64;
-#else
 }  __attribute__((__packed__))XSdPs_Adma2Descriptor64;
-#endif
 
 /**
  * The XSdPs driver instance data. The user is required to allocate a
