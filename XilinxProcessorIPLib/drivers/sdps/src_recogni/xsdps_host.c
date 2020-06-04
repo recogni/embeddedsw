@@ -698,7 +698,11 @@ RETURN_PATH:
 ******************************************************************************/
 s32 XSdPs_EnableClock(XSdPs *InstancePtr, u16 ClockReg)
 {
+#ifdef HAVE_SD_HW
 	u32 Timeout = 150000U;
+#else
+	u32 Timeout = 2; //Hmm, takes a LOOONG time at efault value, clocks must be misconfigured
+#endif
 	s32 Status;
 	u16 ReadReg;
 
@@ -717,6 +721,7 @@ s32 XSdPs_EnableClock(XSdPs *InstancePtr, u16 ClockReg)
 
 	if (Timeout == 0U) {
 		Status = XST_FAILURE;
+        printf("%s: Timeout\n", __func__);
 		goto RETURN_PATH ;
 	}
 
@@ -1358,7 +1363,11 @@ void XSdPs_ConfigInterrupt(XSdPs *InstancePtr)
 ******************************************************************************/
 s32 XSdPs_CmdTransfer(XSdPs *InstancePtr, u32 Cmd, u32 Arg, u32 BlkCnt)
 {
+#ifdef HAVE_SD_HW
 	u32 Timeout = 10000000U;
+#else
+	u32 Timeout = 2U;
+#endif
 	u32 StatusReg;
 	s32 Status;
 
@@ -1402,6 +1411,11 @@ s32 XSdPs_CmdTransfer(XSdPs *InstancePtr, u32 Cmd, u32 Arg, u32 BlkCnt)
 		Timeout = Timeout - 1U;
 	} while (((StatusReg & XSDPS_INTR_CC_MASK) == 0U)
 				&& (Timeout != 0U));
+
+    if (Timeout == 0) {
+        printf("%s: Timeout\n", __func__);
+    }
+
 	/* Write to clear bit */
 	XSdPs_WriteReg16(InstancePtr->Config.BaseAddress,
 			XSDPS_NORM_INTR_STS_OFFSET,
@@ -1425,7 +1439,11 @@ RETURN_PATH:
 ******************************************************************************/
 s32 XSdps_CheckTransferDone(XSdPs *InstancePtr)
 {
+#ifdef HAVE_SD_HW
 	u32 Timeout = 5000000U;
+#else
+	u32 Timeout = 2U;
+#endif
 	u16 StatusReg;
 	s32 Status;
 
@@ -1451,6 +1469,7 @@ s32 XSdps_CheckTransferDone(XSdPs *InstancePtr)
 
 	if (Timeout == 0U) {
 		Status = XST_FAILURE;
+        printf("%s: Timeout\n", __func__);
 		goto RETURN_PATH ;
 	}
 
@@ -1477,7 +1496,11 @@ RETURN_PATH:
 ******************************************************************************/
 s32 XSdPs_CheckBusIdle(XSdPs *InstancePtr, u32 Value)
 {
+#ifdef HAVE_SD_HW
 	u32 Timeout = 10000000U;
+#else
+	u32 Timeout = 3U;
+#endif
 	u32 PresentStateReg;
 	u32 StatusReg;
 	s32 Status;
@@ -1497,6 +1520,7 @@ s32 XSdPs_CheckBusIdle(XSdPs *InstancePtr, u32 Value)
 	}
 
 	if (Timeout == 0U) {
+        printf("%s: Timeout\n", __func__);
 		Status = XST_FAILURE;
 		goto RETURN_PATH ;
 	}

@@ -57,6 +57,7 @@ extern u32 XStl_RegUpdate(u32 RegAddr, u32 RegVal);
 
 #define INLINE inline
 
+#ifdef HAVE_SD_HW  //No HW yet on ARIANE FPGA
 /*****************************************************************************/
 /**
 *
@@ -236,6 +237,17 @@ static INLINE u32 Xil_SecureOut32(UINTPTR Addr, u32 Value)
 
 	return Status;
 }
+#else //No HW yet
+static INLINE u8 Xil_In8(UINTPTR Addr) { return 0; }
+static INLINE u16 Xil_In16(UINTPTR Addr) { return 0; }
+static INLINE u32 Xil_In32(UINTPTR Addr) { return 0; }
+static INLINE u64 Xil_In64(UINTPTR Addr) { return 0; }
+static INLINE void Xil_Out8(UINTPTR Addr, u8 Value) { return; }
+static INLINE void Xil_Out16(UINTPTR Addr, u16 Value) { return; }
+static INLINE void Xil_Out32(UINTPTR Addr, u32 Value) { return; }
+static INLINE void Xil_Out64(UINTPTR Addr, u64 Value) { return; }
+static INLINE u32 Xil_SecureOut32(UINTPTR Addr, u32 Value) { return 0; }
+#endif //HAVE_SD
 
 # define Xil_In16LE	Xil_In16
 # define Xil_In32LE	Xil_In32

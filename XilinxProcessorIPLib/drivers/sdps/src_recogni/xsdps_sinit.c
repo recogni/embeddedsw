@@ -41,7 +41,7 @@
 /************************** Function Prototypes ******************************/
 
 /************************** Variable Definitions *****************************/
-extern XSdPs_Config XSdPs_ConfigTable[XPAR_XSDPS_NUM_INSTANCES];
+extern XSdPs_Config XSdPs_ConfigTable[ARIANE_XSDPS_NUM_INSTANCES];
 
 /*****************************************************************************/
 /**
@@ -66,7 +66,7 @@ XSdPs_Config *XSdPs_LookupConfig(u16 DeviceId)
 	XSdPs_Config *CfgPtr = NULL;
 	u32 Index;
 
-	for (Index = 0U; Index < (u32)XPAR_XSDPS_NUM_INSTANCES; Index++) {
+	for (Index = 0U; Index < (u32)ARIANE_XSDPS_NUM_INSTANCES; Index++) {
 		if (XSdPs_ConfigTable[Index].DeviceId == DeviceId) {
 			CfgPtr = &XSdPs_ConfigTable[Index];
 			break;
